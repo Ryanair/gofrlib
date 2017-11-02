@@ -53,6 +53,19 @@ func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSe
 	return service.Do(ctx)
 }
 
+// DeleteByQueryAndRouting deletes all documents matching given query for given routingKey.
+func (c *AwsEsClient) DeleteByQueryAndRouting(index string, query elastic.Query, routingKey string, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error) {
+	service := elastic.NewDeleteByQueryService(c.client).
+	Query(query).
+	Index(index).
+	Routing(routingKey)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
+	defer cancel()
+
+	return service.Do(ctx)
+}
+
 // Close closes Elasticsearch client which is used internally by EsClient.
 func (c *AwsEsClient) Close() {
 	c.client.Stop()
