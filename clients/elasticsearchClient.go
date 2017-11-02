@@ -56,9 +56,9 @@ func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSe
 // DeleteByQueryAndRouting deletes all documents matching given query for given routingKey.
 func (c *AwsEsClient) DeleteByQueryAndRouting(index string, query elastic.Query, routingKey string, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error) {
 	service := elastic.NewDeleteByQueryService(c.client).
-	Query(query).
 	Index(index).
-	Routing(routingKey)
+	Routing(routingKey).
+	Query(query)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
