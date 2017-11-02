@@ -1,6 +1,5 @@
 package clients
 
-
 import (
 	"context"
 	"log"
@@ -35,12 +34,22 @@ type AwsEsClient struct {
 
 // ExecuteBulk executes BulkableRequest.
 func (c *AwsEsClient) ExecuteBulk(requests []elastic.BulkableRequest) (*elastic.BulkResponse, error) {
-	service := elastic.NewBulkService(c.client)
-	service.Add(requests...)
+	service := elastic.NewBulkService(c.client).Add(requests...)
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	resp, err := service.Do(ctx)
-	return resp, err
+
+	return service.Do(ctx)
+}
+
+// DeleteByQuery deletes all documents matching given query.
+func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeout int) (*elastic.BulkIndexByScrollResponse, error) {
+	service := elastic.NewDeleteByQueryService(c.client).Query(query)
+
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeout)*time.Second)
+	defer cancel()
+
+	return service.Do(ctx)
 }
 
 // Close closes Elasticsearch client which is used internally by EsClient.
