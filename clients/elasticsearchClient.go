@@ -45,7 +45,7 @@ func (c *AwsEsClient) ExecuteBulk(requests []elastic.BulkableRequest) (*elastic.
 
 // DeleteByQuery deletes all documents matching given query.
 func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error) {
-	service := elastic.NewDeleteByQueryService(c.client).Query(query)
+	service := elastic.NewDeleteByQueryService(c.client).Query(query).Index(index)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
