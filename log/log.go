@@ -10,13 +10,17 @@ var log *zap.SugaredLogger
 
 //Creates logger with development config. Logs all from debug level
 func init() {
-	rawLogger, _ := zap.NewProduction()
+	rawLogger, _ := zap.NewDevelopment()
 	defer rawLogger.Sync()
 	log = rawLogger.Sugar()
 }
 
-//Appends AwsRequestID to all log messages
+//Switch into production mode (JSON format) and appends AwsRequestID to all log messages
 func Init(ctx context.Context) {
+	rawLogger, _ := zap.NewProduction()
+	defer rawLogger.Sync()
+	log = rawLogger.Sugar()
+
 	context, _ := lambdacontext.FromContext(ctx)
 	if context == nil || context.AwsRequestID == "" {
 		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
