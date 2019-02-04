@@ -10,7 +10,7 @@ var log *zap.SugaredLogger
 
 //Creates logger with development config. Logs all from debug level
 func init() {
-	rawLogger, _ := zap.NewDevelopment()
+	rawLogger, _ := zap.NewProduction()
 	defer rawLogger.Sync()
 	log = rawLogger.Sugar()
 }
@@ -23,10 +23,6 @@ func Init(ctx context.Context) {
 	} else {
 		log = log.With("context.AwsRequestID", context.AwsRequestID)
 	}
-}
-
-func Debug(template string, args ...interface{}) {
-	log.Debugf(template, args)
 }
 
 func Info(template string, args ...interface{}) {
