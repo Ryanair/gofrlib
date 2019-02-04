@@ -19,8 +19,9 @@ func Init(ctx context.Context) {
 	context, _ := lambdacontext.FromContext(ctx)
 	if context == nil || context.AwsRequestID == "" {
 		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
+	} else {
+		log = log.With("context.AwsRequestID", context.AwsRequestID)
 	}
-	log = log.With("context.AwsRequestID", context.AwsRequestID)
 }
 
 func Debug(template string, args ...interface{}) {
