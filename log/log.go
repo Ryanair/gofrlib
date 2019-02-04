@@ -8,13 +8,14 @@ import (
 
 var log *zap.SugaredLogger
 
+//Creates logger with development config. Logs all from debug level
 func init() {
 	rawLogger, _ := zap.NewDevelopment()
 	defer rawLogger.Sync()
 	log = rawLogger.Sugar()
 }
 
-//Creates logger with development config. Logs all from debug level
+//Appends AwsRequestID to all log messages
 func Init(ctx context.Context) {
 	context, _ := lambdacontext.FromContext(ctx)
 	if context == nil || context.AwsRequestID == "" {
@@ -32,12 +33,10 @@ func Info(template string, args ...interface{}) {
 	log.Infof(template, args)
 }
 
-// Warnf uses fmt.Sprintf to log a templated message.
 func Warn(template string, args ...interface{}) {
 	log.Warnf(template, args)
 }
 
-// Errorf uses fmt.Sprintf to log a templated message.
 func Error(template string, args ...interface{}) {
 	log.Errorf(template, args)
 }
