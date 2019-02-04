@@ -17,6 +17,9 @@ func init() {
 //Creates logger with development config. Logs all from debug level
 func Init(ctx context.Context) {
 	context, _ := lambdacontext.FromContext(ctx)
+	if context == nil || context.AwsRequestID == "" {
+		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
+	}
 	log = log.With("context.AwsRequestID", context.AwsRequestID)
 }
 
