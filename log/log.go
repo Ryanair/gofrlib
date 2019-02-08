@@ -17,7 +17,7 @@ func init() {
 	log = rawLogger.Sugar()
 }
 
-//Switch into production mode (JSON format) and appends AwsRequestID to all log messages
+//Customizes logger to unify log format with ec2 application loggers
 func Init(ctx context.Context) {
 
 	rawLogger, _ := zap.Config{
