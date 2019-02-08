@@ -22,6 +22,6 @@ func (lc ExampleContext) Value(key interface{}) interface{} {
 func TestInit(t *testing.T) {
 	ctx := ExampleContext{}
 	Init(ctx)
-	log.Info("test")
-	log.Error("error test", errors.New("bum"))
+	Info("%v test %v", 123, 456)
+	Error("error test %v", errors.New("bum"))
 }

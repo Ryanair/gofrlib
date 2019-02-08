@@ -54,17 +54,17 @@ func Init(ctx context.Context) {
 }
 
 func Debug(template string, args ...interface{}) {
-	log.Debugf(template, args)
+	log.Debugf(template, args...)
 }
 
 func Info(template string, args ...interface{}) {
-	log.Infof(template, args)
+	log.Infof(template, args...)
 }
 
 func Warn(template string, args ...interface{}) {
-	log.Warnf(template, args)
+	log.Warnf(template, args...)
 }
 
 func Error(template string, args ...interface{}) {
-	log.Errorf(template, args)
+	log.Errorf(template, args...)
 }
