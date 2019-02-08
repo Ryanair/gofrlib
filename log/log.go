@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"strings"
 )
 
 var log *zap.SugaredLogger
@@ -15,9 +17,29 @@ func init() {
 	log = rawLogger.Sugar()
 }
 
-//Switch into production mode (JSON format) and appends AwsRequestID to all log messages
+//Customizes logger to unify log format with ec2 application loggers
 func Init(ctx context.Context) {
-	rawLogger, _ := zap.NewProduction()
+
+	rawLogger, _ := zap.Config{
+		Encoding:    "json",
+		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		OutputPaths: []string{"stdout"},
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:       "timestamp",
+			CallerKey:     "caller",
+			MessageKey:    "message",
+			LevelKey:      "level",
+			StacktraceKey: "stack_trace",
+			EncodeLevel:   zapcore.CapitalLevelEncoder,
+			EncodeCaller:  zapcore.ShortCallerEncoder,
+			EncodeTime:    zapcore.ISO8601TimeEncoder,
+		},
+	}.Build()
+
 	defer rawLogger.Sync()
 	log = rawLogger.Sugar()
 
@@ -25,8 +47,14 @@ func Init(ctx context.Context) {
 	if context == nil || context.AwsRequestID == "" {
 		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
 	} else {
-		log = log.With("context.AwsRequestID", context.AwsRequestID)
+		parts := strings.Split(context.InvokedFunctionArn, ":")
+		application := parts[len(parts)-1]
+		log = log.With("AwsRequestID", context.AwsRequestID).With("application", application)
 	}
+}
+
+func Debug(template string, args ...interface{}) {
+	log.Debugf(template, args)
 }
 
 func Info(template string, args ...interface{}) {
