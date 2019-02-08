@@ -18,6 +18,7 @@ func (lc ExampleContext) Value(key interface{}) interface{} {
 	}
 }
 
+//doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInit(t *testing.T) {
 	ctx := ExampleContext{}
 	Init(ctx)
