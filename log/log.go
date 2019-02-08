@@ -21,13 +21,13 @@ func init() {
 func Init(ctx context.Context) {
 
 	rawLogger, _ := zap.Config{
+		Encoding:    "json",
+		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		OutputPaths: []string{"stdout"},
 		Sampling: &zap.SamplingConfig{
 			Initial:    100,
 			Thereafter: 100,
 		},
-		Encoding:    "json",
-		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
-		OutputPaths: []string{"stdout"},
 		EncoderConfig: zapcore.EncoderConfig{
 			TimeKey:       "timestamp",
 			CallerKey:     "caller",
@@ -51,6 +51,10 @@ func Init(ctx context.Context) {
 		application := parts[len(parts)-1]
 		log = log.With("AwsRequestID", context.AwsRequestID).With("application", application)
 	}
+}
+
+func Debug(template string, args ...interface{}) {
+	log.Debugf(template, args)
 }
 
 func Info(template string, args ...interface{}) {
