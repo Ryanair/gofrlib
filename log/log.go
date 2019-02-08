@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"strings"
 )
 
@@ -18,30 +19,26 @@ func init() {
 
 //Switch into production mode (JSON format) and appends AwsRequestID to all log messages
 func Init(ctx context.Context) {
-	rawLogger, _ := zap.NewProduction()
 
-
-	//rawLogger, _ := zap.Config{
-	//
-	//
-	//	//Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
-	//	//Development: false,
-	//	//Sampling: &zap.SamplingConfig{
-	//	//	Initial:    100,
-	//	//	Thereafter: 100,
-	//	//},
-	//	//Encoding:         "json",
-	//	//EncoderConfig:    NewProductionEncoderConfig(),
-	//	//OutputPaths:      []string{"stderr"},
-	//	//ErrorOutputPaths: []string{"stderr"},
-	//	Encoding:    "json",
-	//	Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
-	//	OutputPaths: []string{"stdout"},
-	//	EncoderConfig: zapcore.EncoderConfig{
-	//		MessageKey: "message",  // <--
-	//	},
-	//}.Build()
-
+	rawLogger, _ := zap.Config{
+		Sampling: &zap.SamplingConfig{
+			Initial:    100,
+			Thereafter: 100,
+		},
+		Encoding:    "json",
+		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		OutputPaths: []string{"stdout"},
+		EncoderConfig: zapcore.EncoderConfig{
+			TimeKey:       "timestamp",
+			CallerKey:     "caller",
+			MessageKey:    "message",
+			LevelKey:      "level",
+			StacktraceKey: "stack_trace",
+			EncodeLevel:   zapcore.CapitalLevelEncoder,
+			EncodeCaller:  zapcore.ShortCallerEncoder,
+			EncodeTime:    zapcore.ISO8601TimeEncoder,
+		},
+	}.Build()
 
 	defer rawLogger.Sync()
 	log = rawLogger.Sugar()
@@ -51,8 +48,8 @@ func Init(ctx context.Context) {
 		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
 	} else {
 		parts := strings.Split(context.InvokedFunctionArn, ":")
-		application := parts[len(parts) - 1]
-		log = log.With("context.AwsRequestID", context.AwsRequestID).With("application", application)
+		application := parts[len(parts)-1]
+		log = log.With("AwsRequestID", context.AwsRequestID).With("application", application)
 	}
 }
 
