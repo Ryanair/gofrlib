@@ -22,7 +22,7 @@ type EsConfig struct {
 
 // EsClient interface defines simplified Elasticsearch client.
 type EsClient interface {
-	ExecuteBulk(requests []elastic.BulkableRequest) (*elastic.BulkResponse, error)
+	ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec int) (*elastic.BulkResponse, error)
 	DeleteByQuery(index string, query elastic.Query, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error)
 	Close()
 }
@@ -34,10 +34,10 @@ type AwsEsClient struct {
 }
 
 // ExecuteBulk executes BulkableRequest.
-func (c *AwsEsClient) ExecuteBulk(requests []elastic.BulkableRequest) (*elastic.BulkResponse, error) {
+func (c *AwsEsClient) ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec int) (*elastic.BulkResponse, error) {
 	service := elastic.NewBulkService(c.client).Add(requests...)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
 
 	return service.Do(ctx)
@@ -56,9 +56,9 @@ func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSe
 // DeleteByQueryAndRouting deletes all documents matching given query for given routingKey.
 func (c *AwsEsClient) DeleteByQueryAndRouting(index string, query elastic.Query, routingKey string, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error) {
 	service := elastic.NewDeleteByQueryService(c.client).
-	Index(index).
-	Routing(routingKey).
-	Query(query)
+		Index(index).
+		Routing(routingKey).
+		Query(query)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
