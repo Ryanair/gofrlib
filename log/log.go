@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap/zapcore"
 	"os"
 	"strings"
+	"time"
 )
 
 var log *zap.SugaredLogger
@@ -22,7 +23,7 @@ func init() {
 func Init(ctx context.Context) {
 
 	logLevel := zapcore.DebugLevel
-	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != ""  {
+	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
 		logLevel.Set(envLogLevel)
 	}
 
@@ -75,6 +76,7 @@ func Error(template string, args ...interface{}) {
 	log.Errorf(template, args...)
 }
 
-func Metric(key string, value interface{}) {
-	log = log.With(key, value)
+func Metric(key string, duration time.Duration) {
+	milliseconds := duration.Nanoseconds() / 1000000
+	log.With(key, milliseconds).Debug("%v took %vms", key, milliseconds)
 }
