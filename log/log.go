@@ -78,5 +78,5 @@ func Error(template string, args ...interface{}) {
 
 func Metric(key string, duration time.Duration) {
 	milliseconds := duration.Nanoseconds() / 1000000
-	log.With(key, milliseconds).Debug("%v took %vms", key, milliseconds)
+	log.With(key, milliseconds).Debugf("%v took %vms", key, milliseconds)
 }
