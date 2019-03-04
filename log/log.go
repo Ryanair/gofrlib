@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 	"strings"
 )
 
@@ -20,9 +21,14 @@ func init() {
 //Customizes logger to unify log format with ec2 application loggers
 func Init(ctx context.Context) {
 
+	logLevel := zapcore.DebugLevel
+	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != ""  {
+		logLevel.Set(envLogLevel)
+	}
+
 	rawLogger, _ := zap.Config{
 		Encoding:    "json",
-		Level:       zap.NewAtomicLevelAt(zapcore.DebugLevel),
+		Level:       zap.NewAtomicLevelAt(logLevel),
 		OutputPaths: []string{"stdout"},
 		Sampling: &zap.SamplingConfig{
 			Initial:    100,
@@ -67,4 +73,8 @@ func Warn(template string, args ...interface{}) {
 
 func Error(template string, args ...interface{}) {
 	log.Errorf(template, args...)
+}
+
+func Metric(key string, value interface{}) {
+	log = log.With(key, value)
 }
