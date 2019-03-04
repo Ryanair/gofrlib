@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"os"
 	"testing"
 )
 
@@ -20,8 +21,11 @@ func (lc ExampleContext) Value(key interface{}) interface{} {
 
 //doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInit(t *testing.T) {
+	os.Setenv("LOG_LEVEL", "INFO")
 	ctx := ExampleContext{}
 	Init(ctx)
+	Debug("debug level %v", 4444)
+	Metric("test", 3.14)
 	Info("%v test %v", 123, 456)
 	Error("error test %v", errors.New("bum"))
 }
