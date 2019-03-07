@@ -2,8 +2,8 @@ package log
 
 import (
 	"context"
-	"errors"
 	"github.com/aws/aws-lambda-go/lambdacontext"
+	"github.com/pkg/errors"
 	"os"
 	"testing"
 	"time"
@@ -29,4 +29,7 @@ func TestInit(t *testing.T) {
 	Metric("metric", time.Second)
 	Info("%v test %v", 123, 456)
 	Error("error test %v", errors.New("bum"))
+	err := errors.New("inside error")
+	err2 := errors.Wrapf(err, "outside error")
+	HandleError(err2)
 }
