@@ -95,6 +95,10 @@ func IsWarnEnabled() bool {
 	return log.Desugar().Check(zapcore.WarnLevel, "") != nil
 }
 
+func MetricInt(key string, value int) {
+	log.With(key, value).Debugf("%v value: %v", key, value)
+}
+
 func Metric(key string, duration time.Duration) {
 	milliseconds := duration.Nanoseconds() / 1000000
 	log.With(key, milliseconds).Debugf("%v took %vms", key, milliseconds)
