@@ -83,6 +83,18 @@ func HandleError(err error) error {
 	return err
 }
 
+func IsDebugEnabled() bool {
+	return log.Desugar().Check(zapcore.DebugLevel, "") != nil
+}
+
+func IsInfoEnabled() bool {
+	return log.Desugar().Check(zapcore.InfoLevel, "") != nil
+}
+
+func IsWarnEnabled() bool {
+	return log.Desugar().Check(zapcore.WarnLevel, "") != nil
+}
+
 func Metric(key string, duration time.Duration) {
 	milliseconds := duration.Nanoseconds() / 1000000
 	log.With(key, milliseconds).Debugf("%v took %vms", key, milliseconds)
