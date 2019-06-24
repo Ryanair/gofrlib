@@ -2,6 +2,7 @@ package dynamodbutils
 
 import (
 	"fmt"
+	"github.com/Ryanair/gofrlib/log"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 )
@@ -29,7 +30,7 @@ func ToAttributeValue(value events.DynamoDBAttributeValue) dynamodb.AttributeVal
 		n := value.IsNull()
 		return dynamodb.AttributeValue{NULL: &n}
 	case events.DataTypeList:
-		var l []dynamodb.AttributeValue
+		l := make([]dynamodb.AttributeValue, 0)
 		for _, i := range value.List() {
 			l = append(l, ToAttributeValue(i))
 		}
@@ -41,7 +42,9 @@ func ToAttributeValue(value events.DynamoDBAttributeValue) dynamodb.AttributeVal
 		}
 		return dynamodb.AttributeValue{M: m}
 	}
-	panic(fmt.Sprintf("Couldn't map value %v", value))
+	msg := fmt.Sprintf("Couldn't map value %v", value)
+	log.Error("%v", msg)
+	panic(msg)
 }
 
 func ToAttributeMap(eventMap map[string]events.DynamoDBAttributeValue) map[string]dynamodb.AttributeValue {
