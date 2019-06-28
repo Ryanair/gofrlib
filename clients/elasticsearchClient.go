@@ -23,7 +23,7 @@ type EsConfig struct {
 // EsClient interface defines simplified Elasticsearch client.
 type EsClient interface {
 	ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec int) (*elastic.BulkResponse, error)
-	DeleteByQuery(index string, query elastic.Query, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error)
+	DeleteByQuery(index string, query elastic.Query, timeoutSec int, shardWait string, waitForComplete bool) (*elastic.BulkIndexByScrollResponse, error)
 	Close()
 }
 
