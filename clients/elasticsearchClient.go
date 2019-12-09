@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/elasticsearchservice"
 	"github.com/edoardo849/apex-aws-signer"
-	"gopkg.in/olivere/elastic.v5"
+	"github.com/olivere/elastic/v7"
 )
 
 // EsConfig represents data needed by Elasticsearch driver to create Client.
