@@ -23,7 +23,7 @@ type EsConfig struct {
 // EsClient interface defines simplified Elasticsearch client.
 type EsClient interface {
 	ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec int) (*elastic.BulkResponse, error)
-	DeleteByQuery(index string, query elastic.Query, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error)
+	DeleteByQuery(index string, query elastic.Query, timeoutSec int, shardWait string, waitForComplete bool) (*elastic.BulkIndexByScrollResponse, error)
 	Close()
 }
 
@@ -44,8 +44,11 @@ func (c *AwsEsClient) ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec
 }
 
 // DeleteByQuery deletes all documents matching given query.
-func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSec int) (*elastic.BulkIndexByScrollResponse, error) {
+func (c *AwsEsClient) DeleteByQuery(index string, query elastic.Query, timeoutSec int, shardWait string, waitForComplete bool) (*elastic.BulkIndexByScrollResponse, error) {
 	service := elastic.NewDeleteByQueryService(c.client).Query(query).Index(index)
+
+	service.WaitForCompletion(waitForComplete)
+	service.Timeout(shardWait)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
 	defer cancel()
