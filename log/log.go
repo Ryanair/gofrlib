@@ -36,7 +36,7 @@ func Init(ctx context.Context) {
 			Thereafter: 100,
 		},
 		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:       "timestamp",
+			TimeKey:       "@timestamp",
 			CallerKey:     "caller",
 			MessageKey:    "message",
 			LevelKey:      "level",
