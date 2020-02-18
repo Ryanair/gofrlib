@@ -22,6 +22,7 @@ type EsConfig struct {
 
 // EsClient interface defines simplified Elasticsearch client.
 type EsClient interface {
+	Search(index string, query elastic.Query, timeoutSec int) (*elastic.SearchResult, error)
 	ExecuteBulk(requests []elastic.BulkableRequest, timeoutSec int) (*elastic.BulkResponse, error)
 	DeleteByQuery(index string, query elastic.Query, timeoutSec int, shardWait string, waitForComplete bool) (*elastic.BulkIndexByScrollResponse, error)
 	Close()
@@ -31,6 +32,14 @@ type EsClient interface {
 type AwsEsClient struct {
 	config *EsConfig
 	client *elastic.Client
+}
+
+func (c *AwsEsClient) Search(index string, query elastic.Query, timeoutSec int) (*elastic.SearchResult, error) {
+	service := elastic.NewSearchService(c.client).Query(query).Index(index)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutSec)*time.Second)
+	defer cancel()
+
+	return service.Do(ctx)
 }
 
 // ExecuteBulk executes BulkableRequest.
