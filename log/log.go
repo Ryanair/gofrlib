@@ -56,7 +56,13 @@ func Init(ctx context.Context) {
 	} else {
 		parts := strings.Split(context.InvokedFunctionArn, ":")
 		application := parts[len(parts)-1]
+		if app := os.Getenv("APP"); app != "" {
+			application = app
+		}
 		log = log.With("AwsRequestID", context.AwsRequestID).With("application", application)
+		if project := os.Getenv("PROJECT"); project != "" {
+			log = log.With("project", project)
+		}
 	}
 }
 
