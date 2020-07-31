@@ -66,6 +66,11 @@ func Init(ctx context.Context) {
 	}
 }
 
+//  Key-value pairs added to log context
+func With(args ...interface{}) {
+	log = log.With(args)
+}
+
 func Debug(template string, args ...interface{}) {
 	log.Debugf(template, args...)
 }
