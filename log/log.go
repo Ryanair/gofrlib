@@ -64,7 +64,7 @@ func Init(ctx context.Context, withArgs ...interface{}) {
 			log = log.With("project", project)
 		}
 	}
-	log = log.With(withArgs)
+	log = log.With(withArgs...)
 }
 
 
