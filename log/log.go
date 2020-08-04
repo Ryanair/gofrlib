@@ -20,7 +20,7 @@ func init() {
 }
 
 //Customizes logger to unify log format with ec2 application loggers
-func Init(ctx context.Context) {
+func Init(ctx context.Context, withArgs ...interface{}) {
 
 	logLevel := zapcore.DebugLevel
 	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
@@ -64,12 +64,9 @@ func Init(ctx context.Context) {
 			log = log.With("project", project)
 		}
 	}
+	log = log.With(withArgs)
 }
 
-//  Key-value pairs added to log context
-func With(args ...interface{}) {
-	log = log.With(args)
-}
 
 func Debug(template string, args ...interface{}) {
 	log.Debugf(template, args...)
