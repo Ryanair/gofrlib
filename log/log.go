@@ -84,7 +84,7 @@ func Error(template string, args ...interface{}) {
 }
 
 func With(args ...interface{}) {
-	log.With(args...)
+	log = log.With(args...)
 }
 
 func HandleError(err error) error {
