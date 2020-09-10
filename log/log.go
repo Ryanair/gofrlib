@@ -48,7 +48,7 @@ func Init(ctx context.Context, withArgs ...interface{}) {
 	}.Build()
 
 	defer rawLogger.Sync()
-	log = rawLogger.Sugar()
+	log = rawLogger.WithOptions(zap.AddCallerSkip(1)).Sugar()
 
 	context, _ := lambdacontext.FromContext(ctx)
 	if context == nil || context.AwsRequestID == "" {
@@ -84,7 +84,7 @@ func Error(template string, args ...interface{}) {
 }
 
 func With(args ...interface{}) {
-	log.With(args...)
+	log = log.With(args...)
 }
 
 func HandleError(err error) error {
