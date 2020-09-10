@@ -67,7 +67,6 @@ func Init(ctx context.Context, withArgs ...interface{}) {
 	log = log.With(withArgs...)
 }
 
-
 func Debug(template string, args ...interface{}) {
 	log.Debugf(template, args...)
 }
@@ -82,6 +81,10 @@ func Warn(template string, args ...interface{}) {
 
 func Error(template string, args ...interface{}) {
 	log.Errorf(template, args...)
+}
+
+func With(args ...interface{}) {
+	log.With(args...)
 }
 
 func HandleError(err error) error {
