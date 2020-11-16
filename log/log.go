@@ -89,7 +89,7 @@ func With(args ...interface{}) {
 
 func HandleError(err error) error {
 	if err != nil {
-		Error("%v", err)
+		log.Errorf("%v", err)
 	}
 	return err
 }
