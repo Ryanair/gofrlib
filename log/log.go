@@ -67,6 +67,10 @@ func Init(ctx context.Context, withArgs ...interface{}) {
 	log = log.With(withArgs...)
 }
 
+func Flush() error {
+	return log.Sync()
+}
+
 func Debug(template string, args ...interface{}) {
 	log.Debugf(template, args...)
 }
