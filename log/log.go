@@ -1,70 +1,74 @@
 package log
 
 import (
-	"context"
-	"github.com/aws/aws-lambda-go/lambdacontext"
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
-	"strings"
-	"time"
 )
 
 var log *zap.SugaredLogger
+var logConfig Configuration
 
-//Creates logger with development config. Logs all from debug level
-func init() {
-	rawLogger, _ := zap.NewDevelopment()
-	defer rawLogger.Sync()
-	log = rawLogger.Sugar()
+type Configuration struct {
+	logLevel               string
+	application            string
+	project                string
+	projectGroup           string
+	customAttributesPrefix string
+}
+
+func NewConfiguration(logLevel, application, project, projectGroup, customAttributesPrefix string) Configuration {
+	return Configuration{
+		logLevel:               logLevel,
+		application:            application,
+		project:                project,
+		projectGroup:           projectGroup,
+		customAttributesPrefix: customAttributesPrefix,
+	}
 }
 
 //Customizes logger to unify log format with ec2 application loggers
-func Init(ctx context.Context, withArgs ...interface{}) {
-
-	logLevel := zapcore.DebugLevel
-	if envLogLevel := os.Getenv("LOG_LEVEL"); envLogLevel != "" {
-		logLevel.Set(envLogLevel)
+func Init(config Configuration) {
+	logConfig = config
+	var logLevel zap.AtomicLevel
+	if err := logLevel.UnmarshalText([]byte(config.logLevel)); err != nil {
+		fmt.Printf("malformed log level: %+v\n", config.logLevel)
+		logLevel = zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 
 	rawLogger, _ := zap.Config{
+		Level:       logLevel,
+		Development: false,
 		Encoding:    "json",
-		Level:       zap.NewAtomicLevelAt(logLevel),
-		OutputPaths: []string{"stdout"},
 		Sampling: &zap.SamplingConfig{
 			Initial:    100,
 			Thereafter: 100,
 		},
 		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:       "@timestamp",
-			CallerKey:     "caller",
-			MessageKey:    "message",
-			LevelKey:      "level",
-			StacktraceKey: "stack_trace",
-			EncodeLevel:   zapcore.CapitalLevelEncoder,
-			EncodeCaller:  zapcore.ShortCallerEncoder,
-			EncodeTime:    zapcore.ISO8601TimeEncoder,
+			TimeKey:        "Timestamp",
+			LevelKey:       "SeverityText",
+			NameKey:        "logger",
+			CallerKey:      "Resource.logger",
+			MessageKey:     "Body.message",
+			StacktraceKey:  "Body.stacktrace",
+			LineEnding:     zapcore.DefaultLineEnding,
+			EncodeLevel:    zapcore.CapitalLevelEncoder,
+			EncodeTime:     zapcore.ISO8601TimeEncoder,
+			EncodeDuration: zapcore.SecondsDurationEncoder,
+			EncodeCaller:   zapcore.ShortCallerEncoder,
 		},
+		ErrorOutputPaths: []string{"stderr"},
+		OutputPaths:      []string{"stderr"},
 	}.Build()
 
 	defer rawLogger.Sync()
-	log = rawLogger.WithOptions(zap.AddCallerSkip(1)).Sugar()
 
-	context, _ := lambdacontext.FromContext(ctx)
-	if context == nil || context.AwsRequestID == "" {
-		log.Errorf("Empty context or missing AwsRequestID. Context: %v", context)
-	} else {
-		parts := strings.Split(context.InvokedFunctionArn, ":")
-		application := parts[len(parts)-1]
-		if app := os.Getenv("APP"); app != "" {
-			application = app
-		}
-		log = log.With("AwsRequestID", context.AwsRequestID).With("application", application)
-		if project := os.Getenv("PROJECT"); project != "" {
-			log = log.With("project", project)
-		}
-	}
-	log = log.With(withArgs...)
+	log = rawLogger.
+		WithOptions(zap.AddCallerSkip(1)).
+		With(zap.String("Resource.application", config.application)).
+		With(zap.String("Resource.project", config.project)).
+		With(zap.String("Resource.projectGroup", config.projectGroup)).
+		Sugar()
 }
 
 func Flush() error {
@@ -75,27 +79,40 @@ func Debug(template string, args ...interface{}) {
 	log.Debugf(template, args...)
 }
 
+func DebugW(msg string, keysAndValues ...interface{}) {
+	log.Debugw(msg, keysAndValues...)
+}
+
 func Info(template string, args ...interface{}) {
 	log.Infof(template, args...)
+}
+
+func InfoW(msg string, keysAndValues ...interface{}) {
+	log.Infow(msg, keysAndValues...)
 }
 
 func Warn(template string, args ...interface{}) {
 	log.Warnf(template, args...)
 }
 
+func WarnW(msg string, keysAndValues ...interface{}) {
+	log.Warnw(msg, keysAndValues...)
+}
+
 func Error(template string, args ...interface{}) {
 	log.Errorf(template, args...)
+}
+
+func ErrorW(msg string, keysAndValues ...interface{}) {
+	log.Errorw(msg, keysAndValues...)
 }
 
 func With(args ...interface{}) {
 	log = log.With(args...)
 }
 
-func HandleError(err error) error {
-	if err != nil {
-		log.Errorf("%v", err)
-	}
-	return err
+func WithCustomAttr(key string, value interface{}) {
+	log = log.With(fmt.Sprintf("Body.%s.%s", logConfig.customAttributesPrefix, key), value)
 }
 
 func IsDebugEnabled() bool {
@@ -108,13 +125,4 @@ func IsInfoEnabled() bool {
 
 func IsWarnEnabled() bool {
 	return log.Desugar().Check(zapcore.WarnLevel, "") != nil
-}
-
-func MetricInt(key string, value int) {
-	log.With(key, value).Debugf("%v value: %v", key, value)
-}
-
-func Metric(key string, duration time.Duration) {
-	milliseconds := duration.Nanoseconds() / 1000000
-	log.With(key, milliseconds).Debugf("%v took %vms", key, milliseconds)
 }
