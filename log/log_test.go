@@ -1,35 +1,71 @@
-package log
+package log_test
 
 import (
-	"context"
-	"github.com/aws/aws-lambda-go/lambdacontext"
-	"github.com/pkg/errors"
-	"os"
+	"github.com/Ryanair/gofrlib/log"
+	"github.com/stretchr/testify/assert"
 	"testing"
-	"time"
 )
-
-type ExampleContext struct {
-	context.Context
-}
-
-func (lc ExampleContext) Value(key interface{}) interface{} {
-	return &lambdacontext.LambdaContext{
-		AwsRequestID: "309a4277-c267-4a1d-abf5-1eaa7f2bbacf",
-		InvokedFunctionArn: "arn:aws:lambda:eu-west-1:487943794540:function:FR-SANDBOX-OTA-APPS-HEALTH-OtaAppsHealthMailLambda-1DXP7KVTF5JG4",
-	}
-}
 
 //doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInit(t *testing.T) {
-	os.Setenv("LOG_LEVEL", "DEBUG")
-	ctx := ExampleContext{}
-	Init(ctx)
-	Debug("debug level %v", 4444)
-	Metric("metric", time.Second)
-	Info("%v test %v", 123, 456)
-	Error("error test %v", errors.New("bum"))
-	err := errors.New("inside error")
-	err2 := errors.Wrapf(err, "outside error")
-	HandleError(err2)
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"testPrefix")
+	log.Init(config)
+	log.Debug("Debug msg: %v", "test-message")
+	log.DebugW("DebugW msg with attribute string", "test-key-1", "test-value-1")
+	log.DebugW("DebugW msg with attribute bool", "test-key-2", false)
+	log.DebugW("DebugW msg with attribute int", "test-key-3", 123)
+
+	log.With("test-key-4", "test-value-4")
+	log.WithCustomAttr("CustomAttrKey1", "CustomAttr1Value")
+	log.WithCustomAttr("CustomAttrKey2", true)
+	log.WithCustomAttr("CustomAttrKey3", 123456)
+	log.Info("Info msg with custom attributes")
+}
+
+//doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestInitShouldClearExistingContext(t *testing.T) {
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"testPrefix")
+	log.Init(config)
+	log.With("test-key-1", "test-value-1")
+	log.Debug("Debug msg with value in context")
+	log.Init(config)
+	log.Debug("Debug msg without value in context")
+}
+
+//doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestSkipLowerLogLevel(t *testing.T) {
+	config := log.NewConfiguration(
+		"INFO",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"testPrefix")
+	log.Init(config)
+	log.Debug("Debug msg")
+	log.Info("Info msg")
+	log.Warn("Warn msg")
+	log.Error("Error msg")
+}
+
+func TestLogLevelCheck(t *testing.T) {
+	config := log.NewConfiguration(
+		"WARN",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"testPrefix")
+	log.Init(config)
+	assert.False(t, log.IsDebugEnabled())
+	assert.False(t, log.IsInfoEnabled())
+	assert.True(t, log.IsWarnEnabled())
 }
