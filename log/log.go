@@ -1,7 +1,12 @@
 package log
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-xray-sdk-go/header"
+	"github.com/aws/aws-xray-sdk-go/strategy/ctxmissing"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -45,12 +50,12 @@ func Init(config Configuration) {
 			Thereafter: 100,
 		},
 		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "Timestamp",
-			LevelKey:       "SeverityText",
+			TimeKey:        Timestamp,
+			LevelKey:       Level,
 			NameKey:        "logger",
-			CallerKey:      "Resource.logger",
-			MessageKey:     "Body.message",
-			StacktraceKey:  "Body.stacktrace",
+			CallerKey:      Logger,
+			MessageKey:     Message,
+			StacktraceKey:  StackTrace,
 			LineEnding:     zapcore.DefaultLineEnding,
 			EncodeLevel:    zapcore.CapitalLevelEncoder,
 			EncodeTime:     zapcore.ISO8601TimeEncoder,
@@ -65,10 +70,25 @@ func Init(config Configuration) {
 
 	log = rawLogger.
 		WithOptions(zap.AddCallerSkip(1)).
-		With(zap.String("Resource.application", config.application)).
-		With(zap.String("Resource.project", config.project)).
-		With(zap.String("Resource.projectGroup", config.projectGroup)).
+		With(zap.String(Application, config.application)).
+		With(zap.String(Project, config.project)).
+		With(zap.String(ProjectGroup, config.projectGroup)).
 		Sugar()
+}
+
+func SetUpXRay() {
+	if err := xray.Configure(xray.Config{ContextMissingStrategy: &ctxmissing.DefaultIgnoreErrorStrategy{}}); err != nil {
+		log.Error("unable to configure xray: %+v", err)
+	}
+}
+
+func SetupTraceIds(ctx context.Context) {
+	if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
+		log.With(TraceId, traceHeader.TraceID)
+		log.With(CorrelationId, traceHeader.TraceID)
+		log.With(SpanId, traceHeader.ParentID)
+		log.With(TraceFlags, traceHeader.SamplingDecision == header.Sampled)
+	}
 }
 
 func Flush() error {
@@ -125,4 +145,12 @@ func IsInfoEnabled() bool {
 
 func IsWarnEnabled() bool {
 	return log.Desugar().Check(zapcore.WarnLevel, "") != nil
+}
+
+func ToString(value interface{}) string {
+	bytes, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Sprintf("%+v", value)
+	}
+	return string(bytes)
 }

@@ -1,20 +1,13 @@
 module github.com/Ryanair/gofrlib
 
-go 1.12
+go 1.14
 
 require (
-	github.com/apex/log v1.1.0 // indirect
 	github.com/aws/aws-lambda-go v1.11.1
-	github.com/aws/aws-sdk-go v1.25.25
-	github.com/aws/aws-sdk-go-v2 v0.9.0
-	github.com/edoardo849/apex-aws-signer v0.0.0-20160911082727-68e110f4cc8c
-	github.com/olivere/elastic/v7 v7.0.9
-	github.com/pkg/errors v0.8.1
-	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/aws/aws-sdk-go v1.25.25 // indirect
+	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.10.0
+	github.com/aws/aws-xray-sdk-go v1.6.0
+	github.com/kr/pretty v0.3.0 // indirect
 	github.com/stretchr/testify v1.6.1
-	go.uber.org/atomic v1.4.0 // indirect
-	go.uber.org/multierr v1.1.0 // indirect
 	go.uber.org/zap v1.10.0
-	gopkg.in/olivere/elastic.v5 v5.0.83
-	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
