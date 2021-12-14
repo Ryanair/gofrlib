@@ -5,5 +5,16 @@ const (
 	CorrelationId = "CorrelationId"
 	SpanId        = "SpanId"
 	TraceFlags    = "TraceFlags"
-	Version       = "Resource.version"
+
+	Timestamp = "Timestamp"
+	Level     = "SeverityText"
+
+	Message    = "Body.message"
+	StackTrace = "Body.stacktrace"
+
+	Logger       = "Resource.logger"
+	Application  = "Resource.application"
+	Project      = "Resource.project"
+	ProjectGroup = "Resource.projectGroup"
+	Version      = "Resource.version"
 )

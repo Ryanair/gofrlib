@@ -50,12 +50,12 @@ func Init(config Configuration) {
 			Thereafter: 100,
 		},
 		EncoderConfig: zapcore.EncoderConfig{
-			TimeKey:        "Timestamp",
-			LevelKey:       "SeverityText",
+			TimeKey:        Timestamp,
+			LevelKey:       Level,
 			NameKey:        "logger",
-			CallerKey:      "Resource.logger",
-			MessageKey:     "Body.message",
-			StacktraceKey:  "Body.stacktrace",
+			CallerKey:      Logger,
+			MessageKey:     Message,
+			StacktraceKey:  StackTrace,
 			LineEnding:     zapcore.DefaultLineEnding,
 			EncodeLevel:    zapcore.CapitalLevelEncoder,
 			EncodeTime:     zapcore.ISO8601TimeEncoder,
@@ -70,9 +70,9 @@ func Init(config Configuration) {
 
 	log = rawLogger.
 		WithOptions(zap.AddCallerSkip(1)).
-		With(zap.String("Resource.application", config.application)).
-		With(zap.String("Resource.project", config.project)).
-		With(zap.String("Resource.projectGroup", config.projectGroup)).
+		With(zap.String(Application, config.application)).
+		With(zap.String(Project, config.project)).
+		With(zap.String(ProjectGroup, config.projectGroup)).
 		Sugar()
 }
 
@@ -84,10 +84,10 @@ func SetUpXRay() {
 
 func SetupTraceIds(ctx context.Context) {
 	if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
-		log.With("TraceId", traceHeader.TraceID)
-		log.With("CorrelationId", traceHeader.TraceID)
-		log.With("SpanId", traceHeader.ParentID)
-		log.With("TraceFlags", traceHeader.SamplingDecision == header.Sampled)
+		log.With(TraceId, traceHeader.TraceID)
+		log.With(CorrelationId, traceHeader.TraceID)
+		log.With(SpanId, traceHeader.ParentID)
+		log.With(TraceFlags, traceHeader.SamplingDecision == header.Sampled)
 	}
 }
 
