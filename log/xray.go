@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/aws/aws-xray-sdk-go/header"
+	"github.com/aws/aws-xray-sdk-go/strategy/ctxmissing"
 	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/aws/aws-xray-sdk-go/xraylog"
 )
@@ -20,7 +21,14 @@ func (x *xRayLogger) Log(level xraylog.LogLevel, msg fmt.Stringer) {
 	}
 }
 
-func SetupXRayLogger() {
+func setUpXRay() {
+	if err := xray.Configure(xray.Config{ContextMissingStrategy: &ctxmissing.DefaultIgnoreErrorStrategy{}}); err != nil {
+		log.Error("unable to configure xray: %+v", err)
+	}
+	setupXRayLogger()
+}
+
+func setupXRayLogger() {
 	xray.SetLogger(&xRayLogger{})
 }
 
