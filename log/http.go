@@ -1,6 +1,7 @@
 package log
 
 import (
+	"context"
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"go.uber.org/zap"
@@ -29,8 +30,15 @@ func (hi headerItem) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
+func SetUpAPIRequest(ctx context.Context, request events.APIGatewayProxyRequest) {
+	SetupTraceIds(ctx)
+	ReportAPIRequest(request)
+}
+
 func ReportAPIRequest(request events.APIGatewayProxyRequest) {
-	DebugW("Got request", BuildRequestLogTrackingFields(request)...)
+	if IsDebugEnabled() {
+		DebugW("Got request", BuildRequestLogTrackingFields(request)...)
+	}
 }
 
 func ReportAPIRequestFailure(request events.APIGatewayProxyRequest) {

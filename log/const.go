@@ -17,4 +17,7 @@ const (
 	Project      = "Resource.project"
 	ProjectGroup = "Resource.projectGroup"
 	Version      = "Resource.version"
+
+	EventSource = "Body.origin.event.eventSource"
+	EventBody   = "Body.origin.event.eventBody"
 )
