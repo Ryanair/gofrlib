@@ -30,10 +30,14 @@ func (hi headerItem) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 }
 
 func ReportAPIRequest(request events.APIGatewayProxyRequest) {
-	DebugW("Got request", buildRequestLogTrackingFields(request)...)
+	DebugW("Got request", BuildRequestLogTrackingFields(request)...)
 }
 
-func buildRequestLogTrackingFields(request events.APIGatewayProxyRequest) []interface{} {
+func ReportAPIRequestFailure(request events.APIGatewayProxyRequest) {
+	WarnW("Got request", BuildRequestLogTrackingFields(request)...)
+}
+
+func BuildRequestLogTrackingFields(request events.APIGatewayProxyRequest) []interface{} {
 	return []interface{}{
 		zap.String("Body.context.origin.request.method", request.HTTPMethod),
 		zap.String("Body.context.origin.request.url", request.Path),
