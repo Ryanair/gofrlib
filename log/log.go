@@ -4,9 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-xray-sdk-go/header"
-	"github.com/aws/aws-xray-sdk-go/strategy/ctxmissing"
-	"github.com/aws/aws-xray-sdk-go/xray"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -73,13 +72,10 @@ func Init(config Configuration) {
 		With(zap.String(Application, config.application)).
 		With(zap.String(Project, config.project)).
 		With(zap.String(ProjectGroup, config.projectGroup)).
+		With(zap.String(Version, lambdacontext.FunctionVersion)).
 		Sugar()
-}
 
-func SetUpXRay() {
-	if err := xray.Configure(xray.Config{ContextMissingStrategy: &ctxmissing.DefaultIgnoreErrorStrategy{}}); err != nil {
-		log.Error("unable to configure xray: %+v", err)
-	}
+	setUpXRay()
 }
 
 func SetupTraceIds(ctx context.Context) {
