@@ -18,15 +18,21 @@ type Configuration struct {
 	application            string
 	project                string
 	projectGroup           string
+	version                string
 	customAttributesPrefix string
 }
 
-func NewConfiguration(logLevel, application, project, projectGroup, customAttributesPrefix string) Configuration {
+func NewConfiguration(logLevel, application, project, projectGroup, version, customAttributesPrefix string) Configuration {
+	v := lambdacontext.FunctionVersion
+	if version != "" {
+		v = version
+	}
 	return Configuration{
 		logLevel:               logLevel,
 		application:            application,
 		project:                project,
 		projectGroup:           projectGroup,
+		version:                v,
 		customAttributesPrefix: customAttributesPrefix,
 	}
 }
@@ -72,7 +78,7 @@ func Init(config Configuration) {
 		With(zap.String(Application, config.application)).
 		With(zap.String(Project, config.project)).
 		With(zap.String(ProjectGroup, config.projectGroup)).
-		With(zap.String(Version, lambdacontext.FunctionVersion)).
+		With(zap.String(Version, config.version)).
 		Sugar()
 
 	setUpXRay()
