@@ -13,6 +13,7 @@ func TestInit(t *testing.T) {
 		"TEST-APPLICATION",
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
+		"1.0.0",
 		"testPrefix")
 	log.Init(config)
 	log.Debug("Debug msg: %v", "test-message")
@@ -34,6 +35,7 @@ func TestInitShouldClearExistingContext(t *testing.T) {
 		"TEST-APPLICATION",
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
+		"1.0.0",
 		"testPrefix")
 	log.Init(config)
 	log.With("test-key-1", "test-value-1")
@@ -49,6 +51,7 @@ func TestSkipLowerLogLevel(t *testing.T) {
 		"TEST-APPLICATION",
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
+		"1.0.0",
 		"testPrefix")
 	log.Init(config)
 	log.Debug("Debug msg")
@@ -63,9 +66,23 @@ func TestLogLevelCheck(t *testing.T) {
 		"TEST-APPLICATION",
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
+		"1.0.0",
 		"testPrefix")
 	log.Init(config)
 	assert.False(t, log.IsDebugEnabled())
 	assert.False(t, log.IsInfoEnabled())
 	assert.True(t, log.IsWarnEnabled())
+}
+
+//doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestLogEmptyVersion(t *testing.T) {
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"",
+		"testPrefix")
+	log.Init(config)
+	log.Debug("Debug msg with value in context")
 }
