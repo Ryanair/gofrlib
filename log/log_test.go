@@ -1,7 +1,9 @@
 package log_test
 
 import (
+	"context"
 	"github.com/Ryanair/gofrlib/log"
+	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -84,5 +86,21 @@ func TestLogEmptyVersion(t *testing.T) {
 		"",
 		"testPrefix")
 	log.Init(config)
+	log.Debug("Debug msg with value in context")
+}
+
+//doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestLogTraceIds(t *testing.T) {
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"",
+		"testPrefix")
+	log.Init(config)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, "Sampled=1;Root=TraceIdValue;Parent=ParentIdValue")
+	log.SetupTraceIds(ctx)
 	log.Debug("Debug msg with value in context")
 }
