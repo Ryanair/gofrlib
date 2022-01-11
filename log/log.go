@@ -86,10 +86,11 @@ func Init(config Configuration) {
 
 func SetupTraceIds(ctx context.Context) {
 	if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
-		log.With(TraceId, traceHeader.TraceID)
-		log.With(CorrelationId, traceHeader.TraceID)
-		log.With(SpanId, traceHeader.ParentID)
-		log.With(TraceFlags, traceHeader.SamplingDecision == header.Sampled)
+		log = log.
+			With(TraceId, traceHeader.TraceID).
+			With(CorrelationId, traceHeader.TraceID).
+			With(SpanId, traceHeader.ParentID).
+			With(TraceFlags, traceHeader.SamplingDecision == header.Sampled)
 	}
 }
 
