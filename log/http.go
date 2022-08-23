@@ -9,6 +9,12 @@ import (
 	"strings"
 )
 
+var blackListHeader = map[string]bool{
+	"x-auth-token":  true,
+	"authorization": true,
+	"fr-token-sig":  true,
+}
+
 type headerItems []headerItem
 type headerItem struct {
 	name  string
@@ -59,10 +65,14 @@ func buildHeaders(request events.APIGatewayProxyRequest) headerItems {
 	var headerItems []headerItem
 
 	for key, value := range request.MultiValueHeaders {
-		headerItems = append(headerItems, headerItem{name: key, value: value})
+		if _, exists := blackListHeader[strings.ToLower(key)]; !exists {
+			headerItems = append(headerItems, headerItem{name: key, value: value})
+		}
 	}
 	for key, value := range request.Headers {
-		headerItems = append(headerItems, headerItem{name: key, value: []string{value}})
+		if _, exists := blackListHeader[strings.ToLower(key)]; !exists {
+			headerItems = append(headerItems, headerItem{name: key, value: []string{value}})
+		}
 	}
 
 	return headerItems
