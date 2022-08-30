@@ -15,7 +15,7 @@ func SetUpALBApiRequest(ctx context.Context, req events.ALBTargetGroupRequest) {
 
 func ReportALBApiRequest(req events.ALBTargetGroupRequest) {
 	if IsDebugEnabled() {
-		DebugW("Got request", buildRequestLogTrackingFields(req))
+		DebugW("Got request", buildRequestLogTrackingFields(req)...)
 
 	}
 }
