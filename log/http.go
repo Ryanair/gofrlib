@@ -85,3 +85,13 @@ func buildQueryParam(request events.APIGatewayProxyRequest) string {
 	}
 	return strings.Join(params, "&")
 }
+
+func WithApigwV2Request(ctx context.Context, event events.APIGatewayV2HTTPRequest) {
+	SetupTraceIds(ctx)
+	log = log.
+		With(EventContextMethod, event.RequestContext.HTTP.Method).
+		With(EventContextUrl, event.RequestContext.DomainName).
+		With(EventContextRoute, event.RequestContext.RouteKey).
+		With(EventContextQuery, event.RawQueryString).
+		With(EventContextAgent, event.RequestContext.HTTP.UserAgent)
+}

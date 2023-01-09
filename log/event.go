@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/aws/aws-lambda-go/events"
 )
 
@@ -48,4 +49,22 @@ func SetUpDynamoRecord(ctx context.Context, event events.DynamoDBEventRecord) {
 			EventSource, event.EventSource,
 			EventBody, ToString(event))
 	}
+}
+
+func WithSQSEvent(ctx context.Context, event events.SQSMessage) {
+	SetupTraceIds(ctx)
+	raw, _ := json.Marshal(event.Attributes)
+	log = log.
+		With(EventContextSource, event.EventSource).
+		With(EventContextBody, event.Body).
+		With(EventContextParams, string(raw))
+}
+
+func WithEvent(ctx context.Context, source string, body string, params map[string]string) {
+	SetupTraceIds(ctx)
+	raw, _ := json.Marshal(params)
+	log = log.
+		With(EventContextSource, source).
+		With(EventContextBody, body).
+		With(EventContextParams, string(raw))
 }

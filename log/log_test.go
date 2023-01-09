@@ -3,12 +3,13 @@ package log_test
 import (
 	"context"
 	"github.com/Ryanair/gofrlib/log"
+	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInit(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -30,7 +31,7 @@ func TestInit(t *testing.T) {
 	log.Info("Info msg with custom attributes")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInitShouldClearExistingContext(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -46,7 +47,7 @@ func TestInitShouldClearExistingContext(t *testing.T) {
 	log.Debug("Debug msg without value in context")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestSkipLowerLogLevel(t *testing.T) {
 	config := log.NewConfiguration(
 		"INFO",
@@ -76,7 +77,7 @@ func TestLogLevelCheck(t *testing.T) {
 	assert.True(t, log.IsWarnEnabled())
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestLogEmptyVersion(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -89,7 +90,7 @@ func TestLogEmptyVersion(t *testing.T) {
 	log.Debug("Debug msg with value in context")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestLogTraceIds(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -103,4 +104,42 @@ func TestLogTraceIds(t *testing.T) {
 	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, "Sampled=1;Root=TraceIdValue;Parent=ParentIdValue")
 	log.SetupTraceIds(ctx)
 	log.Debug("Debug msg with value in context")
+}
+
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestLogSQSEvent(t *testing.T) {
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"",
+		"testPrefix")
+	log.Init(config)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, "Sampled=1;Root=TraceIdValue;Parent=ParentIdValue")
+	message := events.SQSMessage{EventSource: "SQS",
+		Body:       "some message",
+		Attributes: map[string]string{"key": "value"}}
+	log.WithSQSEvent(ctx, message)
+	log.Error("Debug msg with value in context")
+}
+
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
+func TestLogCustomEvent(t *testing.T) {
+	config := log.NewConfiguration(
+		"DEBUG",
+		"TEST-APPLICATION",
+		"TEST-PROJECT",
+		"TEST-PROJECT-GROUP",
+		"",
+		"testPrefix")
+	log.Init(config)
+	ctx := context.Background()
+	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, "Sampled=1;Root=TraceIdValue;Parent=ParentIdValue")
+	source := "custom_event"
+	body := "some message"
+	attributes := map[string]string{"key": "value"}
+	log.WithEvent(ctx, source, body, attributes)
+	log.Error("Debug msg with value in context")
 }
