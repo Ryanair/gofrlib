@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-xray-sdk-go/header"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"strings"
 )
 
 var log *zap.SugaredLogger
@@ -28,16 +29,16 @@ func NewConfiguration(logLevel, application, project, projectGroup, version, cus
 		v = version
 	}
 	return Configuration{
-		logLevel:               logLevel,
-		application:            application,
-		project:                project,
-		projectGroup:           projectGroup,
+		logLevel:               strings.ToUpper(logLevel),
+		application:            strings.ToLower(application),
+		project:                strings.ToLower(project),
+		projectGroup:           strings.ToLower(projectGroup),
 		version:                v,
-		customAttributesPrefix: customAttributesPrefix,
+		customAttributesPrefix: strings.ToLower(customAttributesPrefix),
 	}
 }
 
-//Customizes logger to unify log format with ec2 application loggers
+// Customizes logger to unify log format with ec2 application loggers
 func Init(config Configuration) {
 	logConfig = config
 	var logLevel zap.AtomicLevel
