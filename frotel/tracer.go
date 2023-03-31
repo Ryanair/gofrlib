@@ -7,14 +7,14 @@ import (
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
 	"os"
 )
 
 const (
-	otelServiceEnv = "OTEL_NAME"
+	otelServiceVersion = "VERSION"
 )
 
 func NewProvider(ctx context.Context) (*trace.TracerProvider, error) {
@@ -34,17 +34,12 @@ func NewProvider(ctx context.Context) (*trace.TracerProvider, error) {
 }
 
 func buildResources(ctx context.Context) (*resource.Resource, error) {
-	detector := lambda.NewResourceDetector()
-	resourcesDetected, err := detector.Detect(ctx)
-	if err != nil {
-		log.Error("Error detecting resources: %v", err)
-		return nil, errors.Wrapf(err, "Error detecting resources")
-	}
-
 	resources, err := resource.New(ctx,
+		resource.WithFromEnv(),
+		resource.WithDetectors(lambda.NewResourceDetector()),
 		resource.WithAttributes(
-			attribute.String("service.name", getServiceName()),
-			attribute.String("library.language", "go"),
+			semconv.ServiceVersionKey.String(getServiceVersion()),
+			semconv.TelemetrySDKLanguageGo,
 		),
 	)
 	if err != nil {
@@ -52,13 +47,13 @@ func buildResources(ctx context.Context) (*resource.Resource, error) {
 		return nil, errors.Wrapf(err, "Error creating custom resources")
 	}
 
-	return resource.Merge(resources, resourcesDetected)
+	return resources, nil
 }
 
-func getServiceName() string {
-	if serviceName, defined := os.LookupEnv(otelServiceEnv); defined {
-		return serviceName
+func getServiceVersion() string {
+	if version, defined := os.LookupEnv(otelServiceVersion); defined {
+		return version
 	} else {
-		return fmt.Sprintf("%s_UNDEFINED", otelServiceEnv)
+		return fmt.Sprintf("%s_UNDEFINED", otelServiceVersion)
 	}
 }
