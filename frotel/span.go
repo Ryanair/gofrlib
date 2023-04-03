@@ -20,12 +20,12 @@ func RecordError(ctx context.Context, err error) {
 	span.RecordError(err)
 }
 
-func InstrumentSpan(ctx context.Context, spanName string, consumer func(ctx context.Context) interface{}) {
+func InstrumentSpan[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) T) T {
 	if tracer == nil {
 		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
 	}
 	spanCtx, span := tracer.Start(ctx, spanName)
-	consumer(spanCtx)
-
 	defer span.End()
+
+	return consumer(spanCtx)
 }
