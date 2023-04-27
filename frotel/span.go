@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -13,6 +14,11 @@ var tracer trace.Tracer
 func AddToCurrentSpan(ctx context.Context, kv ...attribute.KeyValue) {
 	span := trace.SpanFromContext(ctx)
 	span.SetAttributes(kv...)
+}
+
+func SetStatus(ctx context.Context, code codes.Code, description string) {
+	span := trace.SpanFromContext(ctx)
+	span.SetStatus(code, description)
 }
 
 func RecordError(ctx context.Context, err error) {
