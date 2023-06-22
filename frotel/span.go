@@ -35,3 +35,13 @@ func InstrumentSpan[T interface{}](ctx context.Context, spanName string, consume
 
 	return consumer(spanCtx)
 }
+
+func InstrumentSpanWithErr[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) (T, error)) (T, error) {
+	if tracer == nil {
+		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
+	}
+	spanCtx, span := tracer.Start(ctx, spanName)
+	defer span.End()
+
+	return consumer(spanCtx)
+}
