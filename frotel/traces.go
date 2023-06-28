@@ -12,7 +12,7 @@ import (
 func NewTraceProvider(ctx context.Context) (*trace.TracerProvider, error) {
 	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithInsecure())
 	if err != nil {
-		log.Error("Error creating exporter: %v", err)
+		log.Error("Error creating exporter", err)
 		return nil, errors.Wrapf(err, "Error creating exporter")
 	}
 
@@ -26,7 +26,7 @@ func NewTraceProvider(ctx context.Context) (*trace.TracerProvider, error) {
 		trace.WithResource(resourcesMerged),
 	)
 	if err != nil {
-		log.Error("Error creating otel tracer provider: %v", err)
+		log.Error("Error creating otel tracer provider", err)
 		return nil, err
 	}
 

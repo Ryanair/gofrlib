@@ -25,7 +25,7 @@ func buildResources(ctx context.Context) (*resource.Resource, error) {
 		),
 	)
 	if err != nil {
-		log.Error("Error creating custom resources: %v", err)
+		log.Error("Error creating custom resources", err)
 		return nil, errors.Wrapf(err, "Error creating custom resources")
 	}
 
