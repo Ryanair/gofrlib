@@ -18,12 +18,12 @@ func InstrumentHandler(tp *trace.TracerProvider, handlerFunc interface{}) interf
 
 func Start(handlerFunc interface{}) {
 	ctx := context.Background()
-	tp, err := NewProvider(ctx)
+	otelProviders, err := NewProvider(ctx)
 	if err != nil {
 		log.Error("creating tracing provider failed", err)
-		tp = trace.NewTracerProvider()
+		otelProviders = DefaultProviders()
 	}
-	defer tp.Shutdown(ctx)
+	defer otelProviders.Shutdown(ctx)
 
-	lambda.Start(InstrumentHandler(tp, handlerFunc))
+	lambda.Start(InstrumentHandler(otelProviders.TracerProvider, handlerFunc))
 }
