@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/aws/aws-lambda-go v1.41.0
+	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.30
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.20.0
 	github.com/aws/aws-xray-sdk-go v1.8.1
 	github.com/pkg/errors v0.9.1
@@ -23,7 +24,6 @@ require (
 require (
 	github.com/andybalholm/brotli v1.0.5 // indirect
 	github.com/aws/aws-sdk-go v1.44.287 // indirect
-	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.10.30 // indirect
 	github.com/aws/aws-sdk-go-v2/service/dynamodbstreams v1.14.14 // indirect
 	github.com/aws/smithy-go v1.13.5 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
