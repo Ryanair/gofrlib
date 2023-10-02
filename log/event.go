@@ -105,6 +105,40 @@ func SetUpDynamoRecord(ctx context.Context, event events.DynamoDBEventRecord) {
 	}
 }
 
+func SetUpKinesisEvent(ctx context.Context, event events.KinesisEvent) {
+	SetupTraceIds(ctx)
+	eventSource := retrieveKinesisEventSource(event)
+	trace.SpanFromContext(ctx).SetAttributes(
+		semconv.MessagingSystem(MessagingSourceSystemKinesis),
+		semconv.MessagingBatchMessageCount(len(event.Records)),
+		semconv.MessagingSourceName(eventSource),
+		semconv.MessagingOperationProcess,
+	)
+	if IsDebugEnabled() {
+		DebugW("Got event",
+			EventSource, eventSource,
+			EventBody, ToString(event))
+	}
+}
+
+func SetUpKinesisRecord(ctx context.Context, event events.KinesisEventRecord) {
+	SetupTraceIds(ctx)
+	eventSource := retrieveKinesisArn(event)
+	trace.SpanFromContext(ctx).SetAttributes(
+		semconv.MessagingSystem(MessagingSourceSystemKinesis),
+		semconv.MessagingSourceName(eventSource),
+		semconv.MessagingMessageID(event.EventID),
+		MessagingSourceSystemDynamoDbStreamsMessageKey.String(ToString(event.Kinesis.PartitionKey)),
+		semconv.MessagingMessagePayloadSizeBytes(len(event.Kinesis.Data)),
+		semconv.MessagingOperationKey.String(event.EventName),
+	)
+	if IsDebugEnabled() {
+		DebugW("Got event",
+			EventSource, eventSource,
+			EventBody, ToString(event))
+	}
+}
+
 func retrieveSNSEventSource(event events.SNSEvent) string {
 	if len(event.Records) == 0 {
 		return "missing SNS topic Arn"
@@ -135,5 +169,16 @@ func retrieveDynamoEventSource(event events.DynamoDBEvent) string {
 }
 
 func retrieveStreamArn(event events.DynamoDBEventRecord) string {
+	return event.EventSourceArn
+}
+
+func retrieveKinesisEventSource(event events.KinesisEvent) string {
+	if len(event.Records) == 0 {
+		return "missing DynamoDB Stream Arn"
+	}
+	return retrieveKinesisArn(event.Records[0])
+}
+
+func retrieveKinesisArn(event events.KinesisEventRecord) string {
 	return event.EventSourceArn
 }

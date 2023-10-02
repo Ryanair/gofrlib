@@ -29,6 +29,7 @@ const (
 	MessagingSourceSystemSqs             = "sqs"
 	MessagingSourceSystemSns             = "sns"
 	MessagingSourceSystemDynamoDbStreams = "dyanamodbstreams"
+	MessagingSourceSystemKinesis         = "kinesis"
 )
 
 var MessagingSourceSystemDynamoDbStreamsMessageKey = attribute.Key(fmt.Sprintf("messaging.%s.message.key", MessagingSourceSystemDynamoDbStreams))
