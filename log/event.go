@@ -128,7 +128,8 @@ func SetUpKinesisRecord(ctx context.Context, event events.KinesisEventRecord) {
 		semconv.MessagingSystem(MessagingSourceSystemKinesis),
 		semconv.MessagingSourceName(eventSource),
 		semconv.MessagingMessageID(event.EventID),
-		MessagingSourceSystemDynamoDbStreamsMessageKey.String(ToString(event.Kinesis.PartitionKey)),
+		semconv.MessagingMessageID(event.Kinesis.SequenceNumber),
+		MessagingMessageShard.String(event.Kinesis.PartitionKey),
 		semconv.MessagingMessagePayloadSizeBytes(len(event.Kinesis.Data)),
 		semconv.MessagingOperationKey.String(event.EventName),
 	)
@@ -174,7 +175,7 @@ func retrieveStreamArn(event events.DynamoDBEventRecord) string {
 
 func retrieveKinesisEventSource(event events.KinesisEvent) string {
 	if len(event.Records) == 0 {
-		return "missing DynamoDB Stream Arn"
+		return "missing Kinesis Stream Arn"
 	}
 	return retrieveKinesisArn(event.Records[0])
 }

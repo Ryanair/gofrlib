@@ -33,3 +33,5 @@ const (
 )
 
 var MessagingSourceSystemDynamoDbStreamsMessageKey = attribute.Key(fmt.Sprintf("messaging.%s.message.key", MessagingSourceSystemDynamoDbStreams))
+
+var MessagingMessageShard = attribute.Key("messaging.message.shard")
