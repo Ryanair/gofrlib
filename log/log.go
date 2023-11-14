@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-xray-sdk-go/header"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 	"strings"
 )
 
@@ -74,11 +75,18 @@ func Init(config Configuration) {
 
 	defer rawLogger.Sync()
 
+	serviceName := os.Getenv("OTEL_SERVICE_NAME")
+	if len(serviceName) == 0 {
+		// check env etc
+		serviceName = fmt.Sprintf("%s-%s-%s-%s", config.projectGroup, config.project, config.application)
+	}
 	log = rawLogger.
 		WithOptions(zap.AddCallerSkip(1)).
 		With(zap.String(Application, config.application)).
 		With(zap.String(Project, config.project)).
 		With(zap.String(ProjectGroup, config.projectGroup)).
+		With(zap.String(ResourceServiceName, serviceName)).
+		With(zap.String(ResourceServiceVersion, config.version)).
 		With(zap.String(Version, config.version)).
 		Sugar()
 
