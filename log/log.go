@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-xray-sdk-go/header"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
 	"strings"
 )
 
@@ -74,11 +76,18 @@ func Init(config Configuration) {
 
 	defer rawLogger.Sync()
 
+	serviceName := os.Getenv("OTEL_SERVICE_NAME")
+	if len(serviceName) == 0 {
+		// check env etc
+		serviceName = fmt.Sprintf("%s-%s-%s-%s", config.projectGroup, config.project, config.application)
+	}
 	log = rawLogger.
 		WithOptions(zap.AddCallerSkip(1)).
 		With(zap.String(Application, config.application)).
 		With(zap.String(Project, config.project)).
 		With(zap.String(ProjectGroup, config.projectGroup)).
+		With(zap.String(ResourceServiceName, serviceName)).
+		With(zap.String(ResourceServiceVersion, config.version)).
 		With(zap.String(Version, config.version)).
 		Sugar()
 
@@ -86,7 +95,15 @@ func Init(config Configuration) {
 }
 
 func SetupTraceIds(ctx context.Context) {
-	if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
+	span := trace.SpanFromContext(ctx)
+	spanContext := span.SpanContext()
+	if spanContext.IsValid() {
+		log = log.
+			With(TraceId, spanContext.TraceID().String()).
+			With(CorrelationId, spanContext.TraceID().String()).
+			With(SpanId, spanContext.SpanID().String()).
+			With(TraceFlags, spanContext.TraceFlags().String())
+	} else if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
 		log = log.
 			With(TraceId, traceHeader.TraceID).
 			With(CorrelationId, traceHeader.TraceID).
