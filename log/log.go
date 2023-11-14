@@ -102,7 +102,7 @@ func SetupTraceIds(ctx context.Context) {
 			With(TraceId, spanContext.TraceID().String()).
 			With(CorrelationId, spanContext.TraceID().String()).
 			With(SpanId, spanContext.SpanID().String()).
-			With(TraceFlags, spanContext.TraceFlags().String())
+			With(TraceFlags, spanContext.TraceFlags().IsSampled())
 	} else if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
 		log = log.
 			With(TraceId, traceHeader.TraceID).
