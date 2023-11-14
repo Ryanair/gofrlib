@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/lambdacontext"
 	"github.com/aws/aws-xray-sdk-go/header"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
@@ -94,7 +95,15 @@ func Init(config Configuration) {
 }
 
 func SetupTraceIds(ctx context.Context) {
-	if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
+	span := trace.SpanFromContext(ctx)
+	spanContext := span.SpanContext()
+	if spanContext.IsValid() {
+		log = log.
+			With(TraceId, spanContext.TraceID().String()).
+			With(CorrelationId, spanContext.TraceID().String()).
+			With(SpanId, spanContext.SpanID().String()).
+			With(TraceFlags, spanContext.TraceFlags().String())
+	} else if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
 		log = log.
 			With(TraceId, traceHeader.TraceID).
 			With(CorrelationId, traceHeader.TraceID).
