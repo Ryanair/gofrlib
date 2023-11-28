@@ -8,9 +8,10 @@ import (
 	"strings"
 )
 
-func SetUpALBApiRequest(ctx context.Context, req events.ALBTargetGroupRequest) {
-	SetupTraceIds(ctx)
+func SetUpALBApiRequest(ctx context.Context, req events.ALBTargetGroupRequest) context.Context {
+	ctx = SetupTraceIds(ctx)
 	ReportALBApiRequest(req)
+	return ctx
 }
 
 func ReportALBApiRequest(req events.ALBTargetGroupRequest) {

@@ -36,9 +36,10 @@ func (hi headerItem) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func SetUpAPIRequest(ctx context.Context, request events.APIGatewayProxyRequest) {
-	SetupTraceIds(ctx)
+func SetUpAPIRequest(ctx context.Context, request events.APIGatewayProxyRequest) context.Context {
+	ctx = SetupTraceIds(ctx)
 	ReportAPIRequest(request)
+	return ctx
 }
 
 func ReportAPIRequest(request events.APIGatewayProxyRequest) {
