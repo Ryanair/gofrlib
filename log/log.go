@@ -94,9 +94,8 @@ func Init(config Configuration) {
 	setUpXRay()
 }
 
-func SetupTraceIds(ctx context.Context) {
-	span := trace.SpanFromContext(ctx)
-	spanContext := span.SpanContext()
+func SetupTraceIds(ctx context.Context) context.Context {
+	spanContext := trace.SpanContextFromContext(ctx)
 	if spanContext.IsValid() {
 		log = log.
 			With(TraceId, spanContext.TraceID().String()).
@@ -104,12 +103,19 @@ func SetupTraceIds(ctx context.Context) {
 			With(SpanId, spanContext.SpanID().String()).
 			With(TraceFlags, spanContext.TraceFlags().IsSampled())
 	} else if traceHeader := getTraceHeaderFromContext(ctx); traceHeader != nil {
+		traceId := ToW3C(traceHeader.TraceID)
 		log = log.
-			With(TraceId, traceHeader.TraceID).
-			With(CorrelationId, traceHeader.TraceID).
+			With(TraceId, traceId).
+			With(CorrelationId, traceId).
 			With(SpanId, traceHeader.ParentID).
 			With(TraceFlags, traceHeader.SamplingDecision == header.Sampled)
+		tId, err := trace.TraceIDFromHex(traceId)
+		if err == nil {
+			return trace.ContextWithSpanContext(ctx, trace.SpanContext{}.
+				WithTraceID(tId))
+		}
 	}
+	return ctx
 }
 
 func Flush() error {
@@ -174,4 +180,18 @@ func ToString(value interface{}) string {
 		return fmt.Sprintf("%+v", value)
 	}
 	return string(bytes)
+}
+
+func ToW3C(xrayTraceID string) string {
+	// Split the X-Ray trace ID into parts
+	parts := strings.Split(xrayTraceID, "-")
+
+	// Check if the X-Ray trace ID has the expected number of parts
+	if len(parts) != 3 {
+		log.Error("invalid X-Ray trace ID format")
+		return xrayTraceID
+	}
+
+	// Extract the relevant parts for the OpenTelemetry trace ID
+	return parts[1] + parts[2]
 }
