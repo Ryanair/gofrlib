@@ -79,7 +79,7 @@ func Init(config Configuration) {
 	serviceName := os.Getenv("OTEL_SERVICE_NAME")
 	if len(serviceName) == 0 {
 		// check env etc
-		serviceName = fmt.Sprintf("%s-%s-%s-%s", config.projectGroup, config.project, config.application)
+		serviceName = fmt.Sprintf("%s-%s-%s", config.projectGroup, config.project, config.application)
 	}
 	log = rawLogger.
 		WithOptions(zap.AddCallerSkip(1)).
