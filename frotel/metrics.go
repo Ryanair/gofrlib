@@ -8,14 +8,14 @@ import (
 	"go.opentelemetry.io/otel/sdk/metric/metricdata"
 )
 
-func deltaTemporalitySelector(metric.InstrumentKind) metricdata.Temporality {
-	return metricdata.DeltaTemporality
+func temporalitySelector(metric.InstrumentKind) metricdata.Temporality {
+	return metricdata.CumulativeTemporality
 }
 
 func NewMetricProvider(ctx context.Context) (*metric.MeterProvider, error) {
 	exporter, err := otlpmetricgrpc.New(ctx,
 		otlpmetricgrpc.WithInsecure(),
-		otlpmetricgrpc.WithTemporalitySelector(deltaTemporalitySelector),
+		otlpmetricgrpc.WithTemporalitySelector(temporalitySelector),
 	)
 	if err != nil {
 		return nil, err
