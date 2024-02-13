@@ -3,7 +3,7 @@ package log
 import (
 	"context"
 	"github.com/aws/aws-lambda-go/events"
-	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.24.0"
 	"go.opentelemetry.io/otel/trace"
 )
 
@@ -13,10 +13,10 @@ func SetUpSns(ctx context.Context, event events.SNSEvent) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveSNSEventSource(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemSns),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemSns),
 		semconv.MessagingBatchMessageCount(len(event.Records)),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -29,9 +29,9 @@ func SetUpSnsRecord(ctx context.Context, event events.SNSEventRecord) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveTopic(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemSns),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(MessagingSourceSystemSns),
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -44,10 +44,10 @@ func SetUpSqs(ctx context.Context, event events.SQSEvent) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveSQSEventSource(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemSqs),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemSqs),
 		semconv.MessagingBatchMessageCount(len(event.Records)),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -60,9 +60,9 @@ func SetUpSqsRecord(ctx context.Context, event events.SQSMessage) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveQueueArn(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemSqs),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(MessagingSourceSystemSqs),
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -75,10 +75,10 @@ func SetUpDynamoEvent(ctx context.Context, event events.DynamoDBEvent) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveDynamoEventSource(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemDynamoDbStreams),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemDynamoDbStreams),
 		semconv.MessagingBatchMessageCount(len(event.Records)),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -91,12 +91,12 @@ func SetUpDynamoRecord(ctx context.Context, event events.DynamoDBEventRecord) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveStreamArn(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemDynamoDbStreams),
-		semconv.MessagingSourceName(eventSource),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemDynamoDbStreams),
+		semconv.MessagingSystemKey.String(eventSource),
 		semconv.MessagingMessageID(event.EventID),
 		MessagingSourceSystemDynamoDbStreamsMessageKey.String(ToString(event.Change.Keys)),
-		semconv.MessagingMessagePayloadSizeBytes(int(event.Change.SizeBytes)),
-		semconv.MessagingOperationKey.String(event.EventName),
+		semconv.MessagingMessageBodySize(int(event.Change.SizeBytes)),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -109,10 +109,10 @@ func SetUpKinesisEvent(ctx context.Context, event events.KinesisEvent) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveKinesisEventSource(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemKinesis),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemKinesis),
 		semconv.MessagingBatchMessageCount(len(event.Records)),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingOperationProcess,
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",
@@ -125,13 +125,12 @@ func SetUpKinesisRecord(ctx context.Context, event events.KinesisEventRecord) {
 	SetupTraceIds(ctx)
 	eventSource := retrieveKinesisArn(event)
 	trace.SpanFromContext(ctx).SetAttributes(
-		semconv.MessagingSystem(MessagingSourceSystemKinesis),
-		semconv.MessagingSourceName(eventSource),
-		semconv.MessagingMessageID(event.EventID),
+		semconv.MessagingSystemKey.String(MessagingSourceSystemKinesis),
+		semconv.MessagingSystemKey.String(eventSource),
+		semconv.MessagingMessageBodySize(len(event.Kinesis.Data)),
 		semconv.MessagingMessageID(event.Kinesis.SequenceNumber),
 		MessagingMessageShard.String(event.Kinesis.PartitionKey),
-		semconv.MessagingMessagePayloadSizeBytes(len(event.Kinesis.Data)),
-		semconv.MessagingOperationKey.String(event.EventName),
+		semconv.MessagingOperationReceive,
 	)
 	if IsDebugEnabled() {
 		DebugW("Got event",

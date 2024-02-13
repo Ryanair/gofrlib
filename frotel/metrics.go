@@ -21,7 +21,7 @@ func NewMetricProvider(ctx context.Context) (*metric.MeterProvider, error) {
 		return nil, err
 	}
 
-	resourcesMerged, err := buildResources(ctx)
+	resourcesMerged, err := buildMetricResources(ctx)
 	if err != nil {
 		return nil, err
 	}
