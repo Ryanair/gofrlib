@@ -195,3 +195,7 @@ func ToW3C(xrayTraceID string) string {
 	// Extract the relevant parts for the OpenTelemetry trace ID
 	return parts[1] + parts[2]
 }
+
+func RawLogger() *zap.SugaredLogger {
+	return log
+}
