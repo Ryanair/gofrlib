@@ -36,6 +36,19 @@ func InstrumentSpan[T interface{}](ctx context.Context, spanName string, consume
 	return consumer(spanCtx)
 }
 
+func InstrumentSpanWithError(ctx context.Context, spanName string, consumer func(ctx context.Context) error) error {
+	if tracer == nil {
+		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
+	}
+	spanCtx, span := tracer.Start(ctx, spanName)
+	defer span.End()
+
+	err := consumer(spanCtx)
+	instrumentError(err, span)
+
+	return err
+}
+
 func InstrumentSpanWithErr[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) (T, error)) (T, error) {
 	if tracer == nil {
 		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
@@ -43,5 +56,15 @@ func InstrumentSpanWithErr[T interface{}](ctx context.Context, spanName string, 
 	spanCtx, span := tracer.Start(ctx, spanName)
 	defer span.End()
 
-	return consumer(spanCtx)
+	result, err := consumer(spanCtx)
+	instrumentError(err, span)
+
+	return result, err
+}
+
+func instrumentError(err error, span trace.Span) {
+	if err != nil {
+		span.RecordError(err, trace.WithStackTrace(true))
+		span.SetStatus(codes.Error, err.Error())
+	}
 }
