@@ -26,21 +26,21 @@ func RecordError(ctx context.Context, err error) {
 	span.RecordError(err)
 }
 
-func InstrumentSpan[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) T) T {
+func InstrumentSpan[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) T, opts ...trace.SpanStartOption) T {
 	if tracer == nil {
 		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
 	}
-	spanCtx, span := tracer.Start(ctx, spanName)
+	spanCtx, span := tracer.Start(ctx, spanName, opts...)
 	defer span.End()
 
 	return consumer(spanCtx)
 }
 
-func InstrumentSpanWithError(ctx context.Context, spanName string, consumer func(ctx context.Context) error) error {
+func InstrumentSpanWithError(ctx context.Context, spanName string, consumer func(ctx context.Context) error, opts ...trace.SpanStartOption) error {
 	if tracer == nil {
 		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
 	}
-	spanCtx, span := tracer.Start(ctx, spanName)
+	spanCtx, span := tracer.Start(ctx, spanName, opts...)
 	defer span.End()
 
 	err := consumer(spanCtx)
@@ -49,11 +49,11 @@ func InstrumentSpanWithError(ctx context.Context, spanName string, consumer func
 	return err
 }
 
-func InstrumentSpanWithErr[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) (T, error)) (T, error) {
+func InstrumentSpanWithErr[T interface{}](ctx context.Context, spanName string, consumer func(ctx context.Context) (T, error), opts ...trace.SpanStartOption) (T, error) {
 	if tracer == nil {
 		tracer = otel.GetTracerProvider().Tracer("fr-otel-tracer")
 	}
-	spanCtx, span := tracer.Start(ctx, spanName)
+	spanCtx, span := tracer.Start(ctx, spanName, opts...)
 	defer span.End()
 
 	result, err := consumer(spanCtx)
