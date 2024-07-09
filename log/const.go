@@ -20,6 +20,7 @@ const (
 	Logger                 = "Resource.logger"
 	Application            = "Resource.application"
 	Project                = "Resource.project"
+	Environment            = "@env"
 	ProjectGroup           = "Resource.projectGroup"
 	ResourceServiceName    = "Resource.service.name"
 	ResourceServiceVersion = "Resource.service.version"

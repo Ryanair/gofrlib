@@ -20,12 +20,13 @@ type Configuration struct {
 	logLevel               string
 	application            string
 	project                string
+	environment            string
 	projectGroup           string
 	version                string
 	customAttributesPrefix string
 }
 
-func NewConfiguration(logLevel, application, project, projectGroup, version, customAttributesPrefix string) Configuration {
+func NewConfiguration(logLevel, application, project, projectGroup, version, customAttributesPrefix, env string) Configuration {
 	v := lambdacontext.FunctionVersion
 	if version != "" {
 		v = version
@@ -34,6 +35,7 @@ func NewConfiguration(logLevel, application, project, projectGroup, version, cus
 		logLevel:               strings.ToUpper(logLevel),
 		application:            strings.ToLower(application),
 		project:                strings.ToLower(project),
+		environment:            strings.ToUpper(env),
 		projectGroup:           strings.ToLower(projectGroup),
 		version:                v,
 		customAttributesPrefix: strings.ToLower(customAttributesPrefix),
@@ -85,6 +87,7 @@ func Init(config Configuration) {
 		WithOptions(zap.AddCallerSkip(1)).
 		With(zap.String(Application, config.application)).
 		With(zap.String(Project, config.project)).
+		With(zap.String(Environment, config.environment)).
 		With(zap.String(ProjectGroup, config.projectGroup)).
 		With(zap.String(ResourceServiceName, serviceName)).
 		With(zap.String(ResourceServiceVersion, config.version)).
