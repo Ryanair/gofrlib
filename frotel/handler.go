@@ -16,14 +16,29 @@ func InstrumentHandler(tp *trace.TracerProvider, handlerFunc interface{}) interf
 		otellambda.WithPropagator(propagation.TraceContext{}))
 }
 
-func Start(handlerFunc interface{}) {
-	ctx := context.Background()
+func initOtelProviders(ctx context.Context) *OtelProviders {
 	otelProviders, err := NewProvider(ctx)
 	if err != nil {
 		log.Error("creating tracing provider failed", err)
 		otelProviders = DefaultProviders()
 	}
+
+	return &otelProviders
+}
+
+func Start(handlerFunc interface{}) {
+	ctx := context.Background()
+	otelProviders := initOtelProviders(ctx)
 	defer otelProviders.Shutdown(ctx)
 
 	lambda.Start(InstrumentHandler(otelProviders.TracerProvider, handlerFunc))
+}
+
+func StartWithTerminationHook(handlerFunc interface{}, hook func()) {
+	ctx := context.Background()
+	otelProviders := initOtelProviders(ctx)
+	defer otelProviders.Shutdown(ctx)
+
+	lambda.StartWithOptions(InstrumentHandler(otelProviders.TracerProvider, handlerFunc),
+		lambda.WithEnableSIGTERM(hook))
 }
