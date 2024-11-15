@@ -1,4 +1,4 @@
-module github.com/Ryanair/gofrlib
+module bitbucket.org/ryanair/gofrlib
 
 go 1.21
 

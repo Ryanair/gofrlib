@@ -1,8 +1,8 @@
 package frotel
 
 import (
+	"bitbucket.org/ryanair/gofrlib/log"
 	"context"
-	"github.com/Ryanair/gofrlib/log"
 	"github.com/aws/aws-lambda-go/lambda"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/aws/aws-lambda-go/otellambda"
 	"go.opentelemetry.io/otel/propagation"

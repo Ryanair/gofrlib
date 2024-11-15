@@ -1,8 +1,8 @@
 package log_test
 
 import (
+	"bitbucket.org/ryanair/gofrlib/log"
 	"context"
-	"github.com/Ryanair/gofrlib/log"
 	"github.com/aws/aws-xray-sdk-go/xray"
 	"github.com/stretchr/testify/assert"
 	"testing"
