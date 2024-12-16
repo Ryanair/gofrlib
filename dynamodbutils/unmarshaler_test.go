@@ -1,7 +1,7 @@
 package dynamodbutils_test
 
 import (
-	"github.com/Ryanair/gofrlib/dynamodbutils"
+	"bitbucket.org/ryanair/gofrlib/dynamodbutils"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/stretchr/testify/assert"
 	"testing"

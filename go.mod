@@ -1,4 +1,4 @@
-module github.com/Ryanair/gofrlib
+module bitbucket.org/ryanair/gofrlib
 
 go 1.21
 
@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.1
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.34.1
 	github.com/aws/aws-xray-sdk-go v1.8.4
+	github.com/life4/genesis v1.10.3
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.9.0
 	go.opentelemetry.io/contrib/detectors/aws/lambda v0.53.0

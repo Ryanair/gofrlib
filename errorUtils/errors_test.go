@@ -1,8 +1,8 @@
 package errorUtils_test
 
 import (
+	"bitbucket.org/ryanair/gofrlib/errorUtils"
 	"errors"
-	"github.com/Ryanair/gofrlib/errorUtils"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

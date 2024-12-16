@@ -1,9 +1,9 @@
 package frotel
 
 import (
+	"bitbucket.org/ryanair/gofrlib/log"
 	"context"
 	"fmt"
-	"github.com/Ryanair/gofrlib/log"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/detectors/aws/lambda"
 	"go.opentelemetry.io/otel/sdk/resource"

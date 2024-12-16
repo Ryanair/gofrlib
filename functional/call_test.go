@@ -1,8 +1,8 @@
 package functional_test
 
 import (
+	"bitbucket.org/ryanair/gofrlib/functional"
 	"errors"
-	"github.com/Ryanair/gofrlib/functional"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

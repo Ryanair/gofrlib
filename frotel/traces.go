@@ -1,8 +1,8 @@
 package frotel
 
 import (
+	"bitbucket.org/ryanair/gofrlib/log"
 	"context"
-	"github.com/Ryanair/gofrlib/log"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
