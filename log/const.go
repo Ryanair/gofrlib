@@ -26,8 +26,11 @@ const (
 	ResourceServiceVersion = "Resource.service.version"
 	Version                = "Resource.version"
 
-	EventSource = "Body.origin.event.eventSource"
-	EventBody   = "Body.origin.event.eventBody"
+	EventSource     = "Body.origin.event.eventSource"
+	EventBody       = "Body.origin.event.eventBody"
+	ErrorKey        = "Body.error"
+	RequestDumpKey  = "Body.context.origin.request.dump"
+	ResponseDumpKey = "Body.context.origin.response.dump"
 
 	MessagingSourceSystemSqs             = "sqs"
 	MessagingSourceSystemSns             = "sns"
