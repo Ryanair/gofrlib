@@ -52,20 +52,18 @@ func (e *HttpApiError) LogErrorWithMessage(msg string, withRequestBody, withResp
 }
 
 func getBlackListHeaders() []string {
-	blackListHeadersEnv, exists := os.LookupEnv("BLACK_LIST_HEADERS")
-	blackListHeaders := defaultBlackListHeaders
-	if exists {
-		blackListHeaders = strings.Split(blackListHeadersEnv, ",")
+	if blackListHeadersEnv, exists := os.LookupEnv("BLACK_LIST_HEADERS"); exists {
+		return strings.Split(blackListHeadersEnv, ",")
 	}
-	return blackListHeaders
+	return defaultBlackListHeaders
 }
 
 // LogError this is a generic method which is handling various types of errors and logs what's the most important
-func LogError(err error, withRequestBody, withResponseBody bool, msg string, a ...any) {
+func LogError(err error, withRequestBody, withResponseBody bool, msg string, args ...any) {
 	var httpApiError *HttpApiError
 	if errors.As(err, &httpApiError) {
-		httpApiError.LogErrorWithMessage(fmt.Sprintf(msg, a...), withRequestBody, withResponseBody)
+		httpApiError.LogErrorWithMessage(fmt.Sprintf(msg, args...), withRequestBody, withResponseBody)
 	} else {
-		log.ErrorW(fmt.Sprintf(msg, a...), log.ErrorKey, err)
+		log.ErrorW(fmt.Sprintf(msg, args...), log.ErrorKey, err)
 	}
 }
