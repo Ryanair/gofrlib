@@ -36,12 +36,7 @@ func NewHttpApiError(error error, req *http.Request, res *http.Response) *HttpAp
 }
 
 func (e *HttpApiError) LogErrorWithMessage(msg string, withRequestBody, withResponseBody bool) {
-	blackListHeadersEnv, exists := os.LookupEnv("BLACK_LIST_HEADERS")
-	blackListHeaders := defaultBlackListHeaders
-	if exists {
-		blackListHeaders = strings.Split(blackListHeadersEnv, ",")
-	}
-	for _, h := range blackListHeaders {
+	for _, h := range getBlackListHeaders() {
 		e.req.Header.Del(h)
 	}
 	dumpedRequest, _ := httputil.DumpRequest(e.req, withRequestBody)
@@ -54,6 +49,15 @@ func (e *HttpApiError) LogErrorWithMessage(msg string, withRequestBody, withResp
 		log.ErrorKey, e.Error(),
 		log.RequestDumpKey, string(dumpedRequest),
 		log.ResponseDumpKey, string(dumpedResponse))
+}
+
+func getBlackListHeaders() []string {
+	blackListHeadersEnv, exists := os.LookupEnv("BLACK_LIST_HEADERS")
+	blackListHeaders := defaultBlackListHeaders
+	if exists {
+		blackListHeaders = strings.Split(blackListHeadersEnv, ",")
+	}
+	return blackListHeaders
 }
 
 // LogError this is a generic method which is handling various types of errors and logs what's the most important
