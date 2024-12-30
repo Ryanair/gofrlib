@@ -6,9 +6,11 @@ import (
 	"github.com/pkg/errors"
 	"net/http"
 	"net/http/httputil"
+	"os"
+	"strings"
 )
 
-var headersToHide = []string{"x-api-key", "Authorization"}
+var defaultBlackListHeaders = []string{"x-api-key", "Authorization"}
 
 type HttpApiError struct {
 	error
@@ -34,7 +36,12 @@ func NewHttpApiError(error error, req *http.Request, res *http.Response) *HttpAp
 }
 
 func (e *HttpApiError) LogErrorWithMessage(msg string) {
-	for _, h := range headersToHide {
+	blackListHeadersEnv, exists := os.LookupEnv("BLACK_LIST_HEADERS")
+	blackListHeaders := defaultBlackListHeaders
+	if exists {
+		blackListHeaders = strings.Split(blackListHeadersEnv, ",")
+	}
+	for _, h := range blackListHeaders {
 		e.req.Header.Del(h)
 	}
 	dumpedRequest, _ := httputil.DumpRequest(e.req, true)

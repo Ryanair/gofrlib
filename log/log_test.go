@@ -8,7 +8,7 @@ import (
 	"testing"
 )
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInit(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -16,7 +16,8 @@ func TestInit(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"1.0.0",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	log.Debug("Debug msg: %v", "test-message")
 	log.DebugW("DebugW msg with attribute string", "test-key-1", "test-value-1")
@@ -30,7 +31,7 @@ func TestInit(t *testing.T) {
 	log.Info("Info msg with custom attributes")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestInitShouldClearExistingContext(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -38,7 +39,8 @@ func TestInitShouldClearExistingContext(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"1.0.0",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	log.With("test-key-1", "test-value-1")
 	log.Debug("Debug msg with value in context")
@@ -46,7 +48,7 @@ func TestInitShouldClearExistingContext(t *testing.T) {
 	log.Debug("Debug msg without value in context")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestSkipLowerLogLevel(t *testing.T) {
 	config := log.NewConfiguration(
 		"INFO",
@@ -54,7 +56,8 @@ func TestSkipLowerLogLevel(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"1.0.0",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	log.Debug("Debug msg")
 	log.Info("Info msg")
@@ -69,14 +72,15 @@ func TestLogLevelCheck(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"1.0.0",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	assert.False(t, log.IsDebugEnabled())
 	assert.False(t, log.IsInfoEnabled())
 	assert.True(t, log.IsWarnEnabled())
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestLogEmptyVersion(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -84,12 +88,13 @@ func TestLogEmptyVersion(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	log.Debug("Debug msg with value in context")
 }
 
-//doesn't assert anything because we have no method output, it's only to check if log format is valid
+// doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestLogTraceIds(t *testing.T) {
 	config := log.NewConfiguration(
 		"DEBUG",
@@ -97,7 +102,8 @@ func TestLogTraceIds(t *testing.T) {
 		"TEST-PROJECT",
 		"TEST-PROJECT-GROUP",
 		"",
-		"testPrefix")
+		"testPrefix",
+		"testEnv")
 	log.Init(config)
 	ctx := context.Background()
 	ctx = context.WithValue(ctx, xray.LambdaTraceHeaderKey, "Sampled=1;Root=TraceIdValue;Parent=ParentIdValue")
