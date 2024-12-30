@@ -47,7 +47,7 @@ func TestHttpApiError_LogErrorWithMessage_OneHeaderHidden(t *testing.T) {
 	os.Setenv("BLACK_LIST_HEADERS", "Authorization")
 	defer os.Unsetenv("BLACK_LIST_HEADERS")
 
-	httpErr.LogErrorWithMessage("test message")
+	httpErr.LogErrorWithMessage("test message", true, true)
 }
 
 // doesn't assert anything because we have no method output, it's only to check if log format is valid
@@ -64,7 +64,7 @@ func TestHttpApiError_LogErrorWithMessage_BothHeaderHidden(t *testing.T) {
 	os.Setenv("BLACK_LIST_HEADERS", "Authorization,x-api-key")
 	defer os.Unsetenv("BLACK_LIST_HEADERS")
 
-	httpErr.LogErrorWithMessage("test message")
+	httpErr.LogErrorWithMessage("test message", true, true)
 }
 
 // doesn't assert anything because we have no method output, it's only to check if log format is valid
@@ -77,12 +77,12 @@ func TestHttpApiError_LogErrorWithMessage_UseDefaultSettings(t *testing.T) {
 	err := errors.New("test error")
 	httpErr := gifrlibErrors.NewHttpApiError(err, req, res)
 
-	httpErr.LogErrorWithMessage("test message")
+	httpErr.LogErrorWithMessage("test message", true, true)
 }
 
 // doesn't assert anything because we have no method output, it's only to check if log format is valid
 func TestLogError(t *testing.T) {
 	log.Init(log.NewConfiguration("DEBUG", "TEST-APPLICATION", "TEST-PROJECT", "TEST-PROJECT-GROUP", "1.0.0", "testPrefix", "testEnv"))
 	err := errors.New("test error")
-	gifrlibErrors.LogError(err, "test message")
+	gifrlibErrors.LogError(err, true, true, "test message")
 }
